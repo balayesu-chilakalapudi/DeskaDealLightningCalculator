@@ -1,0 +1,5 @@
+<aura:event type="COMPONENT" description="Event template">
+    <aura:attribute name="accountObj" type="Account" />
+    <aura:attribute name="opportunityObj" type="Opportunity" />
+    <aura:attribute name="save_or_cancel" type="String" />
+</aura:event>

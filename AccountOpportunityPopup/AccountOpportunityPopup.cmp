@@ -1,0 +1,131 @@
+<aura:component access="global">
+    <aura:attribute name="accountId" type="String" access="global" default="" />
+    <aura:attribute name="opportunityId" type="String" access="global" default="" />
+    <aura:attribute name="activeSections" type="List" default="['A','B']" />
+    <aura:attribute name="activeSectionsMessage" type="String" default="" />
+    <aura:attribute name="accountObj" type="Account" default="{'sObjectType':'Account'}" />
+    <aura:attribute name="opportunityObj" type="Opportunity" default="{'sObjectType':'Opportunity'}" />
+    <aura:registerEvent name="saveAccountOpportunityEvent" type="c:SaveAccountOpportunityEvent" />
+    <div style="margin:0.5%;padding:0.5%">
+        <lightning:accordion allowMultipleSectionsOpen="true" onsectiontoggle="{! c.handleSectionToggle }"
+            activeSectionName="{! v.activeSections }">
+            <lightning:accordionSection name="A" label="Account Details">
+                <!--
+            <aura:set attribute="actions">
+                <lightning:buttonMenu aura:id="menu" alternativeText="Show menu" menuAlignment="right" iconSize="x-small">
+                    <lightning:menuItem value="New" label="Menu Item One" />
+                    <lightning:menuItem value="Edit" label="Menu Item Two" />
+                </lightning:buttonMenu>
+            </aura:set>
+                -->
+                <aura:set attribute="body">
+                    <lightning:recordEditForm objectApiName="Account" >
+                        <div class="slds-grid slds-wrap">
+                            <div class="slds-col slds-size_1-of-1">
+                                <lightning:inputfield variant="label-stacked" fieldName="Name"
+                                    value="{!v.accountObj.Name}" />
+                            </div>
+                        </div>
+                        <div class="slds-grid slds-wrap">
+                            <div class="slds-col slds-size_1-of-1">
+                                <lightning:inputfield variant="label-stacked" fieldName="Phone"
+                                    value="{!v.accountObj.Phone}" />
+                            </div>
+                        </div>
+                    </lightning:recordEditForm>
+                </aura:set>
+            </lightning:accordionSection>
+            <lightning:accordionSection name="B" label="Opportunity Details">
+                <lightning:recordEditForm objectApiName="Opportunity" >
+                    <div class="slds-grid slds-wrap">
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning:inputfield variant="label-stacked" fieldName="First_Name__c"
+                                value="{!v.opportunityObj.First_Name__c}" />
+                        </div>                       
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning:inputfield variant="label-stacked" fieldName="Last_Name__c"
+                            value="{!v.opportunityObj.Last_Name__c}" />
+                        </div>
+                    </div>
+                    <br />
+                    <div class="slds-grid slds-wrap">
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning:inputfield variant="label-stacked" fieldName="Phone_Number__c"
+                                value="{!v.opportunityObj.Phone_Number__c}" />
+                        </div>
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning:inputfield variant="label-stacked" fieldName="Email__c"
+                            value="{!v.opportunityObj.Email__c}" />
+                        </div>
+                    </div>
+                    <br />
+                    <div class="slds-grid slds-wrap">
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning:inputfield variant="label-stacked" fieldName="Monthly_Payment__c"
+                                value="{!v.opportunityObj.Monthly_Payment__c}" />
+                        </div>
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning:inputfield variant="label-stacked" fieldName="Laon_Amount_Requested__c"
+                                value="{!v.opportunityObj.Laon_Amount_Requested__c}" />
+                        </div>
+                    </div>
+                    <br />
+                    <div class="slds-grid slds-wrap">
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning:inputfield variant="label-stacked" fieldName="Fees__c"
+                                value="{!v.opportunityObj.Fees__c}" />
+                        </div>
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning:inputfield variant="label-stacked" fieldName="Loan_Tenure_Months__c"
+                                value="{!v.opportunityObj.Loan_Tenure_Months__c}" />
+                        </div>
+                    </div>
+                    <br />
+                    <div class="slds-grid slds-wrap">
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning:inputfield variant="label-stacked" fieldName="Interest_Rate__c"
+                                value="{!v.opportunityObj.Interest_Rate__c}" />
+                        </div>
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning:inputfield variant="label-stacked" fieldName="Interest_Paid__c"
+                                value="{!v.opportunityObj.Interest_Paid__c}" disabled="true"/>
+                        </div>
+                    </div>
+                    <br />
+                    <div class="slds-grid slds-wrap">
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning:inputfield variant="label-stacked" fieldName="EMI_Amount__c"
+                                value="{!v.opportunityObj.EMI_Amount__c}" />
+                        </div>
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning:inputfield variant="label-stacked" fieldName="Total_Due__c"
+                                value="{!v.opportunityObj.Total_Due__c}" />
+                        </div>
+                    </div>
+                    <br />
+                    <div class="slds-grid slds-wrap">
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning:inputfield variant="label-stacked" fieldName="Due_Date__c"
+                                value="{!v.opportunityObj.Due_Date__c}" />
+                        </div>
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning:inputfield variant="label-stacked" fieldName="Payment_Frequency__c"
+                            value="{!v.opportunityObj.Payment_Frequency__c}" />
+                        </div>
+                    </div>
+                </lightning:recordEditForm>
+            </lightning:accordionSection>
+        </lightning:accordion>
+        <br />
+        <div class="slds-grid slds-wrap">
+            <div class="slds-col slds-size_2-of-3">&nbsp;</div>
+            <div class="slds-col slds-size_1-of-3" style="text-align:right">
+                <lightning:button variant="brand" label="Save Deal" title="Save Deal"
+                    onclick="{! c.saveDealHandler }" />
+                    <lightning:button variant="neutral" label="Cancel" title="Cancel"
+                    onclick="{! c.cancelDealHandler }" />
+            </div>
+        </div>
+    </div>
+
+</aura:component>
