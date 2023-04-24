@@ -1,4 +1,4 @@
-# aura-checkbox-list
+# DeskaDealLightningCalculator
 
 The function checkAll() is useful when you want to select multiple checkboxes at one time click, basically this is used to select the list of checkboxes present in a iteration list
 
