@@ -1,0 +1,462 @@
+<aura:component
+                implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction"
+                access="global" controller="DeskaDealLightningController">
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doinit}" />
+    <aura:attribute name="notSubmitted" type="Boolean" default="false"></aura:attribute>
+    <aura:attribute name="Emi" type="String" default=""></aura:attribute>
+    <aura:attribute name="IPaid" type="String" default=""></aura:attribute>
+    <aura:attribute name="ARP" type="String" default=""></aura:attribute>
+    <aura:attribute name="Term" type="String" default=""></aura:attribute>
+    <aura:attribute name="financed" type="String" default=""></aura:attribute>
+    <aura:attribute name="title" type="String" default="Deal Summary" />
+    <aura:attribute name="frequency" type="String" />
+    <aura:attribute name="newLead" type="Object" />
+    <aura:attribute name="simpleNewLead" type="Object" />
+    <aura:attribute name="newLeadError" type="String" />
+    
+    <aura:attribute name="searchFirstName" type="String" />
+    <aura:attribute name="searchLastName" type="String" />
+    <aura:attribute name="searchPhone" type="String" />
+    <aura:attribute name="searchResult" type="String" />
+    
+    <aura:attribute name="cardTitle" type="String" />
+    <aura:attribute name="cardIcon" type="String" />
+    
+    <aura:attribute name="foundLeadID" type="id" />
+    
+    <aura:attribute name="showStart" type="boolean" default="false" />
+    <aura:attribute name="showEdit" type="boolean" default="false" />
+    <aura:attribute name="showCalc" type="boolean" default="true" />
+    <aura:attribute name="calcForm" type="boolean" default="false" />
+    <aura:attribute name="showSearch" type="boolean" default="true" />
+    <aura:attribute name="approvalRequired" type="boolean" default="false" />
+    
+    <aura:attribute name="leadCount" type="Integer" default="0" />
+    <aura:attribute name="accCount" type="boolean" default="0" />
+    
+    <aura:attribute name="showStoreQuestion" type="boolean" default="0" />
+    <aura:attribute name="showOpportunityTab" type="boolean" default="0" />
+    <aura:attribute name="hideFooter" type="boolean" default="0" />
+    <aura:attribute name="showEditPage" type="boolean" default="0" />
+    <aura:attribute name="searchResultObject" type="object" default="0" />
+    <aura:attribute name="searchMsg" type="String" default="Are we in store" />
+    <aura:attribute name="storeOption" type="List" default="[
+                                                            {'label': 'None', 'value': ''},
+                                                            {'label': 'Yes', 'value': 'Yes'},
+                                                            {'label': 'No', 'value': 'No'},
+                                                            ]" />
+    <aura:attribute name="isError" type="boolean" default="false" />
+    <aura:attribute name="opportunityMode" type="String" default="edit" />
+    <aura:attribute name="accountMode" type="String" default="edit" />
+    <aura:attribute name="isInPermissionSet" type="boolean" default="false" />
+    <aura:attribute name="Reference1" type="Lead" default="{'sobjectType':'Lead','LastName':'','Reference_Relationship__c':'','Phone':''}" />
+    <aura:attribute name="Reference2" type="Lead" default="{'sobjectType':'Lead','LastName':'','Reference_Relationship__c':'','Phone':''}" />
+    <aura:attribute name="Reference3" type="Lead" default="{'sobjectType':'Lead','LastName':'','Reference_Relationship__c':'','Phone':''}" />
+    <aura:attribute name="opportunity_bonanza_recordtype_Id" type="String" default="0128G00000090Z0QAI" />
+    <aura:attribute name="lead_bonanza_recordtype_Id" type="String" default="0128G00000090Z1QAI" />
+    <aura:attribute name="accountObj" type="Account" default="{'sObjectType':'Account'}" />
+    <aura:attribute name="opportunityObj" type="Opportunity" default="{'sObjectType':'Opportunity'}" />
+    <aura:attribute name="showSpinner" type="Boolean" default="false" />
+    <aura:attribute name="previousContracts" type="List" default="[]" />
+    <aura:handler name="saveAccountOpportunityEvent" event="c:SaveAccountOpportunityEvent" action="{!c.saveAccountOpportunityEventHandler}" />
+    
+    <div class="slds">
+        <lightning:card title="Desk Deal Calculator" iconName="utility:screen">
+            <div class="container">
+                <div class="slds-grid slds-m-top--medium slds-wrap">
+                    <div class="slds-col--padded slds-size--1-of-1">
+                        <div id="err" style="display:none;"
+                             class="slds-notify slds-notify--alert slds-theme--error slds-theme--alert-texture"
+                             role="alert">
+                            <h2>Please fill all Information</h2>
+                        </div>
+                        
+                        <lightning:card class="slds-m-bottom_xx-large" title="{!v.cardTitle}" iconName="{!v.cardIcon}">
+                            <lightning:spinner aura:id="mySpinner" class="slds-hide" />
+                            <div class="slds-form slds-p-around_x-small">
+                                <lightning:input label="Client First Name" value="{!v.searchFirstName}"
+                                                 placeholder="Client First Name" />
+                                <lightning:input label="Client Last Name" value="{!v.searchLastName}"
+                                                 placeholder="Client Last Name" />
+                                <lightning:input type="tel" label="Client Phone" value="{!v.searchPhone}"
+                                                 placeholder="Client Phone" />
+                                
+                            </div>
+                            <div class="slds-form-element">
+                                <center>
+                                    <div class="slds-text-heading_small slds-p-around_small">
+                                        <aura:unescapedHtml value="{!v.searchResult}" />
+                                    </div>
+                                    <aura:if isTrue="{!v.showSearch}">
+                                        <lightning:button variant="brand" label="Search for Client"
+                                                          title="Search for Client" onclick="{! c.clientSearch }"
+                                                          aura:id="searchclient" iconName="utility:search" iconPosition="right" />
+                                        
+                                        <lightning:button variant="neutral" label="Reset" title="Clear Search"
+                                                          onclick="{! c.reset }" class="slds-m-left_medium" iconName="utility:clear"
+                                                          iconPosition="right" />
+                                    </aura:if>
+                                </center>
+                            </div>
+                            
+                            <div class=" slds-medium-size_3-of-3 slds-p-around_x-small slds-hide" aura:id="calculator">
+                                
+                                <aura:if isTrue="{!v.calcForm}">
+                                    <aura:if isTrue="{!v.previousContracts.length>0}">
+                                    <br />
+                                    <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+                                        <caption>Previous Contracts</caption>
+                                        <thead>
+                                        <tr class="slds-line-height_reset">                                            
+                                            <td scope="col">Firstname</td>
+                                            <td scope="col">Lastname</td>
+                                            <td scope="col">Phone</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <aura:iteration items="{!v.previousContracts}" var="prev_contract">
+                                        <tr class="slds-hint-parent">
+                                            <td scope="col"><input type="checkbox" name="prev" id="{!prev_contract.Id}" onchange="{!c.prevcontractselected}" />&nbsp;
+                                            {!prev_contract.First_Name__c}</td>
+                                            <td scope="col">{!prev_contract.Last_Name__c}</td>
+                                            <td scope="col">                                                
+                                                {!prev_contract.Phone_Number__c}
+                                            </td>
+                                        </tr>
+                                        </aura:iteration>
+                                        </tbody>
+                                    </table>
+                                    <aura:set attribute="else">
+                                        <span style="font-size:15px;color:blue;text-align:center">No Previous Contracts available.</span>
+                                    </aura:set>
+                                    </aura:if>
+                                    <br />
+                                    <div class="slds-form-element">
+                                        <lightning:select aura:id="frequency" name="frequency"
+                                                          label="Payment Frequency">
+                                            <option value="Monthly">Monthly</option>
+                                        </lightning:select>
+                                        
+                                        
+                                        <div class="slds-form-element__control">
+                                            <lightning:input aura:id="loanAmt" label="Loan Amount" class="" type="text" placeholder="$0.00"
+                                                             required="" />
+                                        </div>
+                                        <div class="slds-form-element__control">
+                                            <lightning:input aura:id="prevContractAmt" label="Previous Contract Amount" class="" type="text" placeholder="$0.00"
+                                                             required="" disabled="true"  />
+                                        </div>
+                                        <div class="slds-form-element__control">
+                                            <lightning:input aura:id="ThirdPartyPmt" label="Third Party Payment" class="" type="text" placeholder="$0.00"
+                                                             required="" />
+                                        </div>
+                                        <!--label class="slds-form-element__label">Fees</label>
+                                <div class="slds-form-element__control">
+                                    <output id="Fees" class="slds-input" type="text" value="17.50" />
+                                </div-->
+                                        <lightning:select aura:id="Fees" name="Fees" label="Fees">
+                                            <option value="0">0</option>
+                                            <option value="17.50">17.50</option>
+                                        </lightning:select>
+                                    </div>
+                                    <div class="slds-form-element">                                        
+                                        <div class="slds-form-element__control">
+                                            <lightning:input aura:id="months" label="Terms" class="" type="text" placeholder="0 month"
+                                                             required="" />
+                                        </div>
+                                    </div>
+                                    <div class="slds-form-element">                                        
+                                        <div class="slds-form-element__control">
+                                            <lightning:input aura:id="rate" label="Rate" class="" type="text" placeholder="0%"
+                                                             required="" />
+                                        </div>
+                                    </div>
+                                    <div class="slds-form-element">                                        
+                                        <div class="slds-form-element__control">
+                                            <lightning:input aura:id="duedate" label="Start Date" class="" type="date" placeholder="Start Date"
+                                                             required="" />
+                                        </div>
+                                    </div>
+                                    
+                                    
+                                    <br />
+                                    <aura:if isTrue="{!v.notSubmitted}">
+                                        <lightning:card iconName='utility:summary'>
+                                            <aura:set attribute="title">
+                                                <h1>{!v.title}</h1>
+                                            </aura:set>
+                                            <div class="slds-grid slds-border_top">
+                                                <div class="slds-col slds-p-horizontal_medium slds-p-top_small">
+                                                    <span>
+                                                        <p style="font-size: 18px;font-weight:bold">
+                                                            <ui:outputText value="{!v.IPaid}" />
+                                                        </p> Interest Paid
+                                                    </span>
+                                                </div>
+                                                <div class="slds-col slds-p-horizontal_large slds-p-top_small">
+                                                    <span>
+                                                        <p style="font-size: 18px;font-weight:bold">
+                                                            <ui:outputText value="{!v.Term}" />
+                                                        </p> term
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="slds-grid">
+                                                <div class="slds-col slds-p-horizontal_medium slds-p-top_medium">
+                                                    <span>
+                                                        <p style="font-size: 18px;font-weight:bold">
+                                                            <ui:outputText value="{!v.ARP}" />
+                                                        </p> APR
+                                                    </span>
+                                                </div>
+                                                <div class="slds-col slds-p-horizontal_large slds-p-top_medium">
+                                                    <span>
+                                                        <p style="font-size: 18px;font-weight:bold">
+                                                            <ui:outputText value="{!v.Emi}" />
+                                                        </p> per month
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <aura:set attribute="footer">
+                                                <div class="slds-grid">
+                                                    <div class="slds-col ">
+                                                        <span style="float:left">Amount Financed</span>
+                                                    </div>
+                                                    <div class="slds-col ">
+                                                        <span style="float:center">
+                                                            <p style="font-size: 14px; margin-right: 60%">
+                                                                <ui:outputText value="{!v.financed}" />
+                                                            </p>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </aura:set>
+                                        </lightning:card>
+                                    </aura:if>
+                                    
+                                    <br />
+                                    <div class="slds-form-element slds-m-bottom--medium ">
+                                        <center>
+                                            <aura:if isTrue="{!v.showCalc}">
+                                                <lightning:button variant="brand" label="Calculate EMI"
+                                                                  title="Calculate EMI" onclick="{! c.getEMIDetail }"
+                                                                  iconName="utility:send" iconPosition="right" />
+                                            </aura:if>
+                                            
+                                            <aura:if isTrue="{!v.showStart}">
+                                                <lightning:button variant="brand" label="Start Deal" title="Start Deal"
+                                                                  onclick="{! c.dealStart }" iconName="utility:send"
+                                                                  iconPosition="right" />
+                                            </aura:if>
+                                            <aura:if isTrue="{!v.showEdit}">
+                                                <lightning:button variant="brand" label="Start Deal" title="Start Deal"
+                                                                  onclick="{! c.dealStart }" iconName="utility:send"
+                                                                  iconPosition="right" />
+                                            </aura:if>
+                                            <!-- <aura:if isTrue="{!v.showEdit}">
+                                                <lightning:button variant="brand" label="Update Deal"
+                                                    title="Update Deal" onclick="{! c.dealEdit }"
+                                                    iconName="utility:send" iconPosition="right" />
+                                            </aura:if> -->
+                                            <aura:if isTrue="{!not(v.showCalc)}">
+                                                <lightning:button variant="neutral" label="Back" title="Back"
+                                                                  onclick="{! c.back }" class="slds-m-left_medium"
+                                                                  iconName="utility:back" />
+                                            </aura:if>
+                                            <lightning:button variant="neutral" label="Reset" title="Clear"
+                                                              onclick="{! c.reset }" class="slds-m-left_medium"
+                                                              iconName="utility:clear" iconPosition="right" />
+                                            <force:recordData aura:id="leadRecordCreator" layoutType="FULL"
+                                                              targetRecord="{!v.newLead}" targetFields="{!v.simpleNewLead}"
+                                                              targetError="{!v.newContactError}" />
+                                        </center>
+                                    </div>
+                                    <aura:if isTrue="{!v.showStoreQuestion}">
+                                        <section role="dialog" aria-modal="true" aria-labelledby="modal-heading-01"
+                                                 class="slds-modal slds-fade-in-open">
+                                            <aura:if isTrue="{!v.showEditPage}">
+                                                <div class="slds-modal__container"
+                                                     style="width: 65% !important;max-width: 100% !important;">
+                                                    <lightning:spinner aura:id="modelSpinner" class="slds-hide" />
+                                                    <lightning:buttonIcon class="slds-modal__close" title="Close"
+                                                                          iconName="utility:close" iconClass="slds-button_icon-inverse"
+                                                                          onclick="{!c.closeModal}" />
+                                                    <div class="slds-modal__content slds-p-around_medium"
+                                                         id="modal-content-id-1">
+                                                        <aura:if isTrue="{!not(v.isError)}">  
+                                                            <aura:if isTrue="{!v.showSpinner}">
+                                                            <lightning:spinner />  
+                                                                <aura:set attribute="else">                    
+                                                                    <c:AccountOpportunityPopup accountObj="{!v.accountObj}" opportunityObj="{!v.opportunityObj}" />
+                                                                </aura:set>    
+                                                            </aura:if>  
+                                                            <!--
+                                                            <lightning:tabset selectedTabId="one" aura:id="tabs">
+                                                               
+                                                                <lightning:tab label="Account" id="one">
+                                                                    <lightning:recordForm
+                                                                                          recordId="{!v.searchResultObject.accID}"
+                                                                                          objectApiName="Account" layoutType="Full"
+                                                                                          onsuccess="{!c.handleSuccess}"
+                                                                                          columns="2" mode="{v.accountMode}" />
+                                                                </lightning:tab>
+                                                                <lightning:tab label="Opportunity" id="two" >
+                                                                    <lightning:recordForm
+                                                                                          recordId="{!v.searchResultObject.oppId}"
+                                                                                          objectApiName="Opportunity" layoutType="Full"
+                                                                                          columns="2" mode="{v.opportunityMode}" />
+                                                                    
+                                                                    <br />
+                                                                    -->
+                                                            <!-- <b>REFERENCES</b>:
+                                                                    <hr />
+                                                                    <div class="slds-form-element">                                        
+                                        <div class="slds-form-element__control">
+                                            <lightning:input aura:id="ref1name" label="Reference1 Name:" class="" type="text" placeholder="Reference 1 Name"
+                                                   required="" value="{!v.Reference1.LastName}"  />  
+                                        </div>
+                                    </div>                                       
+                                    <div class="slds-form-element">                                        
+                                        <div class="slds-form-element__control">
+                                            <lightning:input aura:id="ref1phone" label="Reference1 Phone:" class="" type="text" placeholder="Reference 1 Phone"
+                                                   required="" value="{!v.Reference1.Phone}" />
+                                        </div>
+                                    </div>
+                                    <div class="slds-form-element">                                       
+                                        <div class="slds-form-element__control">
+                                            <lightning:input aura:id="ref1relation" label="Reference1 Relationship" class="" type="text" placeholder="Reference 1 Relationship"
+                                                   required="" value="{!v.Reference1.Reference_Relationship__c}" />
+                                        </div>
+                                    </div>    
+                                    <div class="slds-form-element">                                       
+                                        <div class="slds-form-element__control">
+                                            <lightning:input aura:id="ref2name" label="Reference2 Name:" class="" type="text" placeholder="Reference 2 Name"
+                                                   required="" value="{!v.Reference2.LastName}" />
+                                        </div>
+                                    </div>                                       
+                                    <div class="slds-form-element">                                        
+                                        <div class="slds-form-element__control">
+                                            <lightning:input aura:id="ref2phone" label="Reference2 Phone:" class="" type="text" placeholder="Reference 2 Phone"
+                                                   required="" value="{!v.Reference2.Phone}" />
+                                        </div>
+                                    </div>
+                                    <div class="slds-form-element">                                        
+                                        <div class="slds-form-element__control">
+                                            <lightning:input aura:id="ref2relation" label="Reference2 Relationship" class="" type="text" placeholder="Reference 2 Relationship"
+                                                   required="" value="{!v.Reference2.Reference_Relationship__c}" />
+                                        </div>
+                                    </div>
+                                    <div class="slds-form-element">                                        
+                                        <div class="slds-form-element__control">
+                                            <lightning:input aura:id="ref3name" label="Reference3 Name:" class="" type="text" placeholder="Reference 3 Name"
+                                                   required="" value="{!v.Reference3.LastName}" />
+                                        </div>
+                                    </div>                                       
+                                    <div class="slds-form-element">                                        
+                                        <div class="slds-form-element__control">
+                                            <lightning:input aura:id="ref3phone" label="Reference3 Phone:" class="" type="text" placeholder="Reference 3 Phone"
+                                                   required="" value="{!v.Reference3.Phone}" />
+                                        </div>
+                                    </div>
+                                    <div class="slds-form-element">                                        
+                                        <div class="slds-form-element__control">
+                                            <lightning:input aura:id="ref3relation" label="Reference3 Relationship" class="" type="text" placeholder="Reference 3 Relationship"
+                                                   required="" value="{!v.Reference3.Reference_Relationship__c}" />
+                                        </div>
+                                    </div>
+                                                                    <br /> 
+                                                                     <button class="slds-button slds-button_brand"
+                                                                            onclick="{!c.saveReference}">Update References</button>
+                                                              </lightning:tab>  -->
+                                                            
+                                                            <!--/aura:if>
+           
+                                                                <aura:if isTrue="{!v.showOpportunityTab}">
+                                                                    <lightning:tab label="Opportunity" id="two">
+                                                                        <lightning:recordForm
+                                                                                              recordId="{!v.searchResultObject.oppId}"
+                                                                                              objectApiName="Opportunity" layoutType="Full"
+                                                                                              columns="2" mode="edit" />
+                                                                    </lightning:tab>
+                                                                </aura:if>
+                                                                <aura:if isTrue="{!v.showEdit}">
+                                                                    <lightning:tab label="Account" id="one">
+                                                                        <lightning:recordForm
+                                                                                              recordId="{!v.searchResultObject.accID}"
+                                                                                              objectApiName="Account" layoutType="Full"
+                                                                                              onsuccess="{!c.handleSuccess}"
+                                                                                              columns="2" mode="readonly" />
+                                                                    </lightning:tab>
+                                                                    <lightning:tab label="Opportunity" id="two">
+                                                                        <lightning:recordForm
+                                                                                              recordId="{!v.searchResultObject.oppId}"
+                                                                                              objectApiName="Opportunity" layoutType="Full"
+                                                                                              columns="2" mode="readonly" />
+                                                                    </lightning:tab>
+                                                                </aura:if
+                                                            </lightning:tabset>-->
+                                                        </aura:if>
+                                                        <aura:if isTrue="{!v.isError}">
+                                                            <center style="font-size: larger;"><b>{!v.searchMsg}</b>
+                                                                <br/>
+                                                                <br/>
+                                                                <aura:if isTrue="{!v.isInPermissionSet}">
+                                                                    <b>Do you still want to proceed?</b><br/><br/>
+                                                                    <button class="slds-button slds-button_neutral"
+                                                                            onclick="{!c.searchStore}">Yes</button>
+                                                                    <button class="slds-button slds-button_brand"
+                                                                            onclick="{!c.closeModal}">No</button>
+                                                                </aura:if>
+                                                            </center>
+                                                        </aura:if>
+                                                        
+                                                    </div>
+                                                    <aura:if isTrue="{!not(v.hideFooter)}">
+                                                        <div class="slds-modal__footer">
+                                                            <button class="slds-button slds-button_neutral"
+                                                                    aria-label="Cancel and close"
+                                                                    onclick="{!c.searchStore}">Yes</button>
+                                                            <button class="slds-button slds-button_brand"
+                                                                    onclick="{!c.closeModal}">No</button>
+                                                        </div>
+                                                    </aura:if>
+                                                </div>
+                                                <aura:set attribute="else">
+                                                    <div class="slds-modal__container">
+                                                        <lightning:spinner aura:id="modelSpinner" class="slds-hide" />
+                                                        <lightning:buttonIcon class="slds-modal__close" title="Close"
+                                                                              iconName="utility:close"
+                                                                              iconClass="slds-button_icon-inverse"
+                                                                              onclick="{!c.closeModal}" />
+                                                        
+                                                        <div class="slds-modal__content slds-p-around_medium"
+                                                             id="modal-content-id-1">
+                                                            <center style="font-size: larger;"><b>{!v.searchMsg}</b>
+                                                            </center>
+                                                            
+                                                        </div>
+                                                        <aura:if isTrue="{!not(v.hideFooter)}">
+                                                            <div class="slds-modal__footer">
+                                                                <button class="slds-button slds-button_neutral"
+                                                                        aria-label="Cancel and close"
+                                                                        onclick="{!c.searchStore}">Yes</button>
+                                                                <button class="slds-button slds-button_brand"
+                                                                        onclick="{!c.searchStoreNo}">No</button>
+                                                            </div>
+                                                        </aura:if>
+                                                    </div>
+                                                </aura:set>
+                                            </aura:if>
+                                        </section>
+                                        <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+                                    </aura:if>
+                                </aura:if>
+                            </div>
+                        </lightning:card>
+                    </div>
+                </div>
+            </div>
+        </lightning:card>
+    </div>
+</aura:component>
